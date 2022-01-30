@@ -131,106 +131,12 @@ export default function RecentLaunches() {
     ));
   };
 
-  const allData = () => {
+  const allData = (value1, value2) => {
     const req = 'http://api.spacex.land/graphql/';
 
     const query = gql`
   {
-    launchesPastResult {
-      data {
-        links {
-          mission_patch_small
-          wikipedia
-          video_link
-          reddit_media
-          reddit_recovery
-          reddit_launch
-          reddit_campaign
-        }
-        launch_site {
-          site_name
-        }
-        rocket {
-          rocket_name
-          rocket {
-            country
-          }
-        }
-        launch_date_utc
-        mission_name
-        upcoming
-      }
-    }
-  }
-  `;
-
-    request(req, query).then((d) => setData({
-      data: d.launchesPastResult.data.map((e) => ({
-        mission_icon: e.links.mission_patch_small,
-        launch_site: e.launch_site.site_name,
-        rocket_name: e.rocket.rocket_name,
-        rocket_country: e.rocket.rocket.country,
-        launch_date: e.launch_date_utc.substring(0, 10),
-        mission_name: e.mission_name,
-        is_upcoming: e.upcoming,
-        media: [e.links.reddit_campaign, e.links.reddit_launch, e.links.reddit_media, e.links.reddit_recovery, e.links.video_link, e.links.wikipedia],
-      })),
-    }));
-  };
-
-  const nameData = (value) => {
-    const req = 'http://api.spacex.land/graphql/';
-
-    const query = gql`
-  {
-    launchesPastResult (find: {rocket_name:"${value}" ${year ? `,launch_year:"${year}"` : ''}}){
-      data {
-        links {
-          mission_patch_small
-          wikipedia
-          video_link
-          reddit_media
-          reddit_recovery
-          reddit_launch
-          reddit_campaign
-        }
-        launch_site {
-          site_name
-        }
-        rocket {
-          rocket_name
-          rocket {
-            country
-          }
-        }
-        launch_date_utc
-        mission_name
-        upcoming
-      }
-    }
-  }
-  `;
-
-    request(req, query).then((d) => setData({
-      data: d.launchesPastResult.data.map((e) => ({
-        mission_icon: e.links.mission_patch_small,
-        launch_site: e.launch_site.site_name,
-        rocket_name: e.rocket.rocket_name,
-        rocket_country: e.rocket.rocket.country,
-        launch_date: e.launch_date_utc.substring(0, 10),
-        mission_name: e.mission_name,
-        is_upcoming: e.upcoming,
-        media: [e.links.reddit_campaign, e.links.reddit_launch, e.links.reddit_media, e.links.reddit_recovery, e.links.video_link, e.links.wikipedia],
-      })),
-    }));
-  };
-
-  const yearData = (value) => {
-    const req = 'http://api.spacex.land/graphql/';
-
-    const query = gql`
-  {
-    launchesPastResult (find: {launch_year:"${value}" ${name ? `,rocket_name:"${name}"` : ''}}){
+    launchesPastResult (find: {rocket_name:"${value1 || ''}" ,launch_year:"${value2 || ''}"}){
       data {
         links {
           mission_patch_small
@@ -275,24 +181,12 @@ export default function RecentLaunches() {
   const handleOnYearChange = (value) => {
     setYear(value);
     setData();
-    if (value) {
-      yearData(value);
-    } else if (name) {
-      nameData(name);
-    } else {
-      allData();
-    }
+    allData(name, value);
   };
   const handleOnNameChange = (value) => {
     setName(value);
     setData();
-    if (value) {
-      nameData(value);
-    } else if (year) {
-      yearData(year);
-    } else {
-      allData();
-    }
+    allData(value, year);
   };
 
   useEffect(() => {
@@ -454,7 +348,7 @@ export default function RecentLaunches() {
           <div className="switches">
             <Row>
               <Col span={50}>Mission icon : </Col>
-              <Col span={50}>{smallData?.mission_icon}</Col>
+              <Col span={50}><img src={smallData?.mission_icon} alt="icon" style={{ width: '40px' }} /></Col>
             </Row>
             <Row>
               <Col span={50}>Launch site : </Col>
