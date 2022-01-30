@@ -101,15 +101,20 @@ const columns = [
 ];
 
 export default function RecentLaunches() {
+  const weight = useSelector((state) => state.settings.weight);
+  const distance = useSelector((state) => state.settings.distance);
   const [data, setData] = useState();
   const [smallData, setSmallData] = useState();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [year, setYear] = useState();
   const [name, setName] = useState();
   const [names, setNames] = useState();
-
-  const weight = useSelector((state) => state.settings.weight);
-  const distance = useSelector((state) => state.settings.distance);
+  const [core, setCore] = useState();
+  const [fairings, setFairings] = useState();
+  const [missionsIds, setMissionsIds] = useState();
+  const [missionId, setMissionId] = useState();
+  const [launching, setLaunching] = useState();
+  const [landing, setLanding] = useState();
 
   const getNames = () => {
     const req = 'http://api.spacex.land/graphql/';
@@ -131,12 +136,29 @@ export default function RecentLaunches() {
     ));
   };
 
-  const allData = (value1, value2) => {
+  const getMissionIds = () => {
+    const req = 'http://api.spacex.land/graphql/';
+
+    const query = gql`
+    {
+      launchesPastResult {
+        data {
+          mission_id
+        }
+      }
+    }
+  `;
+
+    request(req, query).then((d) => setMissionsIds([...new Set(d.launchesPastResult.data.map((e) => e.mission_id[0]))].filter((e) => !!e === true)));
+  };
+
+  const allData = (value1, value2, value3, value4, value5, value6, value7) => {
     const req = 'http://api.spacex.land/graphql/';
 
     const query = gql`
   {
-    launchesPastResult (find: {rocket_name:"${value1 || ''}" ,launch_year:"${value2 || ''}"}){
+    launchesPastResult (find: {rocket_name:"${value1 || ''}" ,launch_year:"${value2 || ''}",core_reuse:"${value3 || ''}"
+    ,fairings_reuse:"${value4 || ''}",mission_id:"${value5 || ''}",launch_success:"${value6 || ''}",land_success:"${value7 || ''}"}){
       data {
         links {
           mission_patch_small
@@ -181,17 +203,48 @@ export default function RecentLaunches() {
   const handleOnYearChange = (value) => {
     setYear(value);
     setData();
-    allData(name, value);
+    allData(name, value, core, fairings, missionId, launching, landing);
   };
   const handleOnNameChange = (value) => {
     setName(value);
     setData();
-    allData(value, year);
+    allData(value, year, core, fairings, missionId, launching, landing);
+  };
+
+  const handleOnCoreChange = (value) => {
+    setCore(value);
+    setData();
+    allData(name, year, value, fairings, missionId, launching, landing);
+  };
+
+  const handleOnFairingsChange = (value) => {
+    setFairings(value);
+    setData();
+    allData(name, year, core, value, missionId, launching, landing);
+  };
+
+  const handleOnMissionIdChange = (value) => {
+    setMissionId(value);
+    setData();
+    allData(name, year, core, fairings, value, launching, landing);
+  };
+
+  const handleOnLaunchingChange = (value) => {
+    setLaunching(value);
+    setData();
+    allData(name, year, core, fairings, missionId, value, landing);
+  };
+
+  const handleOnLandingChange = (value) => {
+    setLanding(value);
+    setData();
+    allData(name, year, core, fairings, missionId, launching, value);
   };
 
   useEffect(() => {
     allData();
     getNames();
+    getMissionIds();
 
     return () => {
     };
@@ -285,7 +338,7 @@ export default function RecentLaunches() {
   return !data ? <div>loading....</div>
     : (
       <>
-        <Select defaultValue={year || 'Year'} style={{ width: 120, marginLeft: 20 }} allowClear onChange={handleOnYearChange}>
+        <Select defaultValue={year || 'Year'} style={{ width: 80, marginLeft: 20 }} allowClear onChange={handleOnYearChange}>
           <Option value="2020">2020</Option>
           <Option value="2019">2019</Option>
           <Option value="2018">2018</Option>
@@ -301,8 +354,32 @@ export default function RecentLaunches() {
           <Option value="2008">2008</Option>
         </Select>
 
-        <Select defaultValue={name || 'Rocket Name'} style={{ width: 140, marginLeft: 50 }} allowClear onChange={handleOnNameChange}>
+        <Select defaultValue={name || 'Rocket Name'} style={{ width: 130, marginLeft: 50 }} allowClear onChange={handleOnNameChange}>
           {names.map((e, index) => <Option key={index} value={e}>{e}</Option>)}
+        </Select>
+
+        <Select defaultValue={core || 'Core'} style={{ width: 100, marginLeft: 50 }} allowClear onChange={handleOnCoreChange}>
+          <Option value="true">reused</Option>
+          <Option value="false">not reused</Option>
+        </Select>
+
+        <Select defaultValue={fairings || 'Fairings'} style={{ width: 100, marginLeft: 50 }} allowClear onChange={handleOnFairingsChange}>
+          <Option value="true">reused</Option>
+          <Option value="false">not reused</Option>
+        </Select>
+
+        <Select defaultValue={missionId || 'Mission ID'} style={{ width: 110, marginLeft: 50 }} allowClear onChange={handleOnMissionIdChange}>
+          {missionsIds.map((e, index) => <Option key={index} value={e}>{e}</Option>)}
+        </Select>
+
+        <Select defaultValue={launching || 'Launching Success'} style={{ width: 160, marginLeft: 50 }} allowClear onChange={handleOnLaunchingChange}>
+          <Option value="true">Success</Option>
+          <Option value="false">Failed</Option>
+        </Select>
+
+        <Select defaultValue={landing || 'Landing Success'} style={{ width: 160, marginLeft: 50 }} allowClear onChange={handleOnLandingChange}>
+          <Option value="true">Success</Option>
+          <Option value="false">Failed</Option>
         </Select>
 
         <ProTable
