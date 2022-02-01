@@ -1,11 +1,11 @@
 import React from 'react';
 import { Row, Col } from 'antd';
 
-export default function ModalRow({ e }) {
+export default function ModalRow({ modalData }) {
   return (
     <Row>
-      <Col span={50}>{e.label}</Col>
-      <Col span={50} className={e.className || ''}>{e.content}</Col>
+      <Col span={50}>{modalData.label}</Col>
+      <Col span={50} className={modalData.className || ''}>{modalData.content}</Col>
     </Row>
   );
 }

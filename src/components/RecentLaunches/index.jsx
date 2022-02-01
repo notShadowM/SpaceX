@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {
+  useState, useRef, useEffect, useMemo,
+} from 'react';
 import {
   Tag, Space, Input, Modal,
 } from 'antd';
@@ -11,18 +13,14 @@ import {
 } from '../../graphql/spaceX';
 import Selection from './Selection';
 import ModalRow from './ModalRow';
-import Loading from './Loading';
+import Loading from '../Loading';
 
 const columns = [
-  // {
-  //   dataIndex: 'index',
-  //   valueType: 'indexBorder',
-  //   width: 48,
-  // },
   {
     title: 'Mission icon',
     dataIndex: 'mission_icon',
     search: false,
+    id: 'title',
     renderFormItem: (_, { defaultRender }) => defaultRender(_),
     render: (_, record) => (
       <Space>
@@ -33,46 +31,42 @@ const columns = [
   {
     title: 'Launch site',
     dataIndex: 'launch_site',
+    id: 'launch site',
     search: false,
-    renderFormItem: (_, {
-      type, defaultRender, formItemProps, fieldProps,
-    }, form) => <Input {... fieldProps} placeholder="Enter launch site" />,
+    renderFormItem: (_, { fieldProps }) => <Input {... fieldProps} placeholder="Enter launch site" />,
   },
   {
     title: 'Rocket name',
     dataIndex: 'rocket_name',
+    id: 'rocket name',
     search: false,
-    renderFormItem: (_, {
-      type, defaultRender, formItemProps, fieldProps,
-    }, form) => <Input {... fieldProps} placeholder="Enter rocket name" />,
+    renderFormItem: (_, { fieldProps }) => <Input {... fieldProps} placeholder="Enter rocket name" />,
   },
   {
     title: 'Rocket country',
     dataIndex: 'rocket_country',
+    id: 'rocket country',
     search: false,
-    renderFormItem: (_, {
-      type, defaultRender, formItemProps, fieldProps,
-    }, form) => <Input {... fieldProps} placeholder="Enter rocket country" />,
+    renderFormItem: (_, { fieldProps }) => <Input {... fieldProps} placeholder="Enter rocket country" />,
   },
   {
     title: 'Launch date',
     dataIndex: 'launch_date',
+    id: 'launch date',
     search: false,
-    renderFormItem: (_, {
-      type, defaultRender, formItemProps, fieldProps,
-    }, form) => <Input {... fieldProps} placeholder="Enter Launch date" />,
+    renderFormItem: (_, { fieldProps }) => <Input {... fieldProps} placeholder="Enter Launch date" />,
   },
   {
     title: 'Mission name',
     dataIndex: 'mission_name',
-    renderFormItem: (_, {
-      type, defaultRender, formItemProps, fieldProps,
-    }, form) => <Input {... fieldProps} placeholder="Enter Mission Name" />,
+    id: 'mission name',
+    renderFormItem: (_, { fieldProps }) => <Input {... fieldProps} placeholder="Enter Mission Name" />,
     search: false,
   },
   {
     title: 'Is upcoming',
     dataIndex: 'is_upcoming',
+    id: 'is upcoming',
     search: false,
     renderFormItem: (_, { defaultRender }) => defaultRender(_),
     render: (_, record) => (
@@ -84,10 +78,9 @@ const columns = [
   {
     title: 'Media',
     dataIndex: 'media',
+    id: 'media',
     search: false,
-    renderFormItem: (_, {
-      type, defaultRender, formItemProps, fieldProps,
-    }, form) => <Input {... fieldProps} placeholder="Please enter test" />,
+    renderFormItem: (_, { fieldProps }) => <Input {... fieldProps} placeholder="Please enter test" />,
     render: (_, record) => (
       <Space>
         {record.media.map((text, index) => (
@@ -119,27 +112,27 @@ const smallDataModal = (data, weight, distance) => [
   { label: 'Rocket Description : ', content: data?.description },
 ];
 
-const selectionData = (names, years, missionsIds, setFormData) => [
+const selectionData = (names, years, missionsIds) => [
   {
-    state: 'launch_year', setData: (value) => { setFormData({ launch_year: value }); }, name: 'Year', style: { width: 80, marginLeft: 20 }, contents: years.map((e) => ({ value: e, text: e })),
+    name: 'launch_year', label: 'Year', style: { width: 80, marginLeft: 20 }, options: years.map((e) => ({ value: e, text: e })),
   },
   {
-    state: 'rocket_name', setData: (value) => { setFormData({ rocket_name: value }); }, name: 'Rocket Name', style: { width: 130, marginLeft: 50 }, contents: names.map((e) => ({ value: e, text: e })),
+    name: 'rocket_name', label: 'Rocket Name', style: { width: 130, marginLeft: 50 }, options: names?.map((e) => ({ value: e, text: e })),
   },
   {
-    state: 'core_reuse', setData: (value) => { setFormData({ core_reuse: value }); }, name: 'Core', style: { width: 100, marginLeft: 50 }, contents: [{ value: 'true', text: 'reused' }, { value: 'false', text: 'not reused' }],
+    name: 'core_reuse', label: 'Core', style: { width: 100, marginLeft: 50 }, options: [{ value: 'true', text: 'reused' }, { value: 'false', text: 'not reused' }],
   },
   {
-    state: 'fairings_reuse', setData: (value) => { setFormData({ fairings_reuse: value }); }, name: 'Fairings', style: { width: 100, marginLeft: 50 }, contents: [{ value: 'true', text: 'reused' }, { value: 'false', text: 'not reused' }],
+    name: 'fairings_reuse', label: 'Fairings', style: { width: 100, marginLeft: 50 }, options: [{ value: 'true', text: 'reused' }, { value: 'false', text: 'not reused' }],
   },
   {
-    state: 'mission_id', setData: (value) => { setFormData({ mission_id: value }); }, name: 'Mission ID', style: { width: 110, marginLeft: 50 }, contents: missionsIds.map((e) => ({ value: e, text: e })),
+    name: 'mission_id', label: 'Mission ID', style: { width: 110, marginLeft: 50 }, options: missionsIds?.map((e) => ({ value: e, text: e })),
   },
   {
-    state: 'launch_success', setData: (value) => { setFormData({ launch_success: value }); }, name: 'Launching Success', style: { width: 160, marginLeft: 50 }, contents: [{ value: 'true', text: 'Success' }, { value: 'false', text: 'Failed' }],
+    name: 'launch_success', label: 'Launching Success', style: { width: 160, marginLeft: 50 }, options: [{ value: 'true', text: 'Success' }, { value: 'false', text: 'Failed' }],
   },
   {
-    state: 'land_success', setData: (value) => { setFormData({ land_success: value }); }, name: 'Landing Success', style: { width: 160, marginLeft: 50 }, contents: [{ value: 'true', text: 'Success' }, { value: 'false', text: 'Failed' }],
+    name: 'land_success', label: 'Landing Success', style: { width: 160, marginLeft: 50 }, options: [{ value: 'true', text: 'Success' }, { value: 'false', text: 'Failed' }],
   },
 ];
 
@@ -178,7 +171,8 @@ export default function RecentLaunches() {
       find: formData,
     };
     request(endpoint, tableData, variables).then((d) => setData(
-      d.launchesPastResult.data.map((e) => ({
+      d.launchesPastResult.data.map((e, index) => ({
+        key: index,
         mission_icon: e.links.mission_patch_small,
         launch_site: e.launch_site.site_name,
         rocket_name: e.rocket.rocket_name,
@@ -192,9 +186,14 @@ export default function RecentLaunches() {
   };
 
   useEffect(() => {
-    allData();
     getNames();
     getMissionIds();
+    return () => {
+    };
+  }, []);
+
+  useEffect(() => {
+    allData();
     return () => {
     };
   }, [formData]);
@@ -240,14 +239,19 @@ export default function RecentLaunches() {
     setSmallData();
   };
 
+  const SelectionMemo = useMemo(() => (
+    <>
+      {selectionData(names, yearOptions, missionsIds).map((field, index) => (
+        <Selection field={field} form={formData} key={index} onChange={setFormData} />
+      ))}
+    </>
+  ), [formData, missionsIds, names]);
+
   const actionRef = useRef();
   return !data ? <Loading />
     : (
       <>
-        {selectionData(names, yearOptions, missionsIds, setFormData).map((e, index) => (
-          <Selection e={e} index={index} formData={formData} />
-        ))}
-
+        {SelectionMemo}
         <ProTable
           columns={columns}
           actionRef={actionRef}
@@ -259,7 +263,6 @@ export default function RecentLaunches() {
             persistenceKey: 'pro-table-singe-demos',
             persistenceType: 'localStorage',
           }}
-          rowKey="id"
           search={false}
           form={{
             syncToUrl: (values, type) => {
@@ -281,15 +284,15 @@ export default function RecentLaunches() {
           }}
           dateFormatter="string"
           headerTitle="SpaceX"
-          onRow={(record, rowIndex) => ({
-            onClick: (event) => { showModal(record); }, // click row
+          onRow={(record) => ({
+            onClick: () => { showModal(record); }, // click row
           })}
         />
 
         <Modal title="Data" footer={null} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel}>
           <div className="switches">
-            {smallDataModal(smallData, weight, distance).map((e) => (
-              <ModalRow e={e} />
+            {smallDataModal(smallData, weight, distance).map((ModelRowData, index) => (
+              <ModalRow modalData={ModelRowData} key={index} />
             ))}
           </div>
         </Modal>
