@@ -3,15 +3,35 @@
   height: 100vh;
   position: fixed;
   left: 0;
-  padding: 2%;
+  padding: 2% 5px;
   background-color: #ccc;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 30px;
 }
 
 .icon{
   font-size: 35px;
+}
+
+.item{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: 10px;
+  gap: 2px;
+  border-radius: 15px;
+  border: solid 1px transparent;
+  transition: border-color ease-in 0.5s;
+}
+
+.selected{
+  border-color: #000;
+  transition: border-color ease-in 0.5s;
+  width: 100%;
 }
 
 .switches{

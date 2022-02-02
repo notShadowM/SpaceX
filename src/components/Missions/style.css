@@ -1,0 +1,55 @@
+.missionsContainer{
+  padding: 30px;
+  background: #ececec;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5%;
+}
+
+.cardRow{
+  display: flex;
+  gap: 5px;
+}
+
+.missionLabel{
+  font-weight: bold;
+}
+
+.missionDesc{
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden; 
+}
+
+.payloadTitle{
+  font-weight: bold;
+}
+
+.payloadContainer{
+  width: 90%;
+  margin: 5px auto;
+}
+
+.payloadBlock{
+  margin-top: 10px;
+}
+
+.payloadTitle{
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.modalRow{
+  margin-left: 15px;
+}
+
+.paginationBar{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0, 255, 0, 0.5);
+  width: 100%;
+  padding: 10px;
+  text-align: right;
+}

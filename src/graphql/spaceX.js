@@ -97,3 +97,51 @@ export const MissionIds = gql`
   }
 }
 `;
+
+export const getMissions = gql`
+query Query {
+  missionsResult {
+    data {
+      name
+      description
+      manufacturers
+      payloads {
+        id
+      }
+      wikipedia
+      twitter
+      website
+    }
+  }
+}
+`;
+
+export const payloadsPart1 = gql`
+query ($find: MissionsFind) {
+  missionsResult(find: $find) {
+    data {
+      payloads {
+        customers
+      }
+    }
+  }
+}
+`;
+
+export const payloadsPart2 = gql`
+query ($find: MissionsFind) {
+  missionsResult(find: $find) {
+    data {
+      payloads {
+        payload_mass_kg
+        payload_mass_lbs
+        payload_type
+        reused
+        orbit
+        nationality
+        manufacturer
+      }
+    }
+  }
+}
+`;

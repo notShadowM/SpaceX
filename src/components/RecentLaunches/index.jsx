@@ -170,8 +170,8 @@ export default function RecentLaunches() {
     const variables = {
       find: formData,
     };
-    request(endpoint, tableData, variables).then((d) => setData(
-      d.launchesPastResult.data.map((e, index) => ({
+    request(endpoint, tableData, variables).then((response) => setData(
+      response.launchesPastResult.data.map((e, index) => ({
         key: index,
         mission_icon: e.links.mission_patch_small,
         launch_site: e.launch_site.site_name,
