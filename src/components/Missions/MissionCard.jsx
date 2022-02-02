@@ -10,9 +10,9 @@ const cardData = (mission) => [
   },
   { label: 'Manufacturers:', content: mission.manufacturers.join(' - '), noRow: true },
   { label: 'Payloads:', content: mission.payloads.map((payloadObj) => payloadObj.id).join(' / '), noRow: true },
-  { label: 'Wikipedia:', content: <a aria-label="link" href={mission.wikipedia}><FileWordOutlined style={{ fontSize: '16px' }} /></a> },
-  { label: 'Twitter:', content: <a aria-label="link" href={mission.twitter}><TwitterOutlined style={{ fontSize: '16px' }} /></a> },
-  { label: 'Website:', content: <a aria-label="link" href={mission.website}><LinkOutlined style={{ fontSize: '16px' }} /></a> },
+  { label: 'Wikipedia:', content: <a onClick={(e) => e.stopPropagation()} aria-label="link" href={mission.wikipedia}><FileWordOutlined style={{ fontSize: '16px' }} /></a> },
+  { label: 'Twitter:', content: <a onClick={(e) => e.stopPropagation()} aria-label="link" href={mission.twitter}><TwitterOutlined style={{ fontSize: '16px' }} /></a> },
+  { label: 'Website:', content: <a onClick={(e) => e.stopPropagation()} aria-label="link" href={mission.website}><LinkOutlined style={{ fontSize: '16px' }} /></a> },
 ];
 
 export default function MissionCard({ mission }) {
