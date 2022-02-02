@@ -32,19 +32,13 @@ export default function Missions() {
     };
   }, []);
 
-  // const dataMemo = useMemo(() => (
-  //   <div className="missionsContainer">
-  //     {data?.map((mission, index) => (
-  //       <MissionCard mission={mission} key={index} />
-  //     ))}
-  //   </div>
-  // ));
+  const dataMemo = useMemo(() => data?.slice(pageNumber * numberOfPages, (pageNumber * numberOfPages) + numberOfPages).map((mission, index) => (
+    <MissionCard mission={mission} key={index} />
+  )), [data, pageNumber, numberOfPages]);
 
   return !data ? <Loading /> : (
     <div className="missionsContainer">
-      {data.slice(pageNumber * numberOfPages, (pageNumber * numberOfPages) + numberOfPages).map((mission, index) => (
-        <MissionCard mission={mission} key={index} />
-      ))}
+      {dataMemo}
       <div className="paginationBar">
         <Pagination
           size="small"

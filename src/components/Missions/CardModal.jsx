@@ -62,7 +62,7 @@ export default function CardModal({
         </div>
       ))}
     </>
-  ));
+  ), []);
 
   const gqlDataMemo = useMemo(() => (
     <div className="payloadContainer">
