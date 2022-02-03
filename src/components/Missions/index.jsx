@@ -3,19 +3,23 @@ import './style.css';
 import { request } from 'graphql-request';
 import { Pagination } from 'antd';
 import { endpoint, getMissions, missionsLength } from '../../graphql/spaceX';
-import MissionCard from './MissionCard';
+import MissionCard from './MissionCard/MissionCard';
 import Loading from '../Loading';
 
 export default function Missions() {
   const [data, setData] = useState();
-  const [pageNumber, setPageNumber] = useState(0);
-  const [numberOfPages, setNumberOfPages] = useState(5);
-  const [dataLength, setDataLength] = useState(0);
+  const [pagination, setPagination] = useState({
+    pageNumber: 0,
+    numberOfPages: 5,
+    dataLength: 0,
+  });
+
+  const setPaginationData = (object) => setPagination((prevState) => ({ ...prevState, ...object }));
 
   const getData = () => {
     const variables = {
-      offset: pageNumber * numberOfPages,
-      limit: numberOfPages,
+      offset: pagination.pageNumber * pagination.numberOfPages,
+      limit: pagination.numberOfPages,
     };
     request(endpoint, getMissions, variables).then((response) => setData(
       response.missionsResult.data.map((e, index) => ({
@@ -32,7 +36,7 @@ export default function Missions() {
   };
 
   const getDataLength = () => {
-    request(endpoint, missionsLength).then((res) => setDataLength(res.missionsResult.result.totalCount));
+    request(endpoint, missionsLength).then((res) => setPaginationData({ dataLength: res.missionsResult.result.totalCount }));
   };
 
   useEffect(() => {
@@ -44,11 +48,11 @@ export default function Missions() {
     getData();
     return () => {
     };
-  }, [pageNumber, numberOfPages]);
+  }, [pagination.pageNumber, pagination.numberOfPages]);
 
   const dataMemo = useMemo(() => data?.map((mission, index) => (
     <MissionCard mission={mission} key={index} />
-  )), [data, pageNumber, numberOfPages]);
+  )), [data, pagination.pageNumber, pagination.numberOfPages]);
 
   return !data ? <Loading /> : (
     <div className="missionsContainer">
@@ -56,12 +60,12 @@ export default function Missions() {
       <div className="paginationBar">
         <Pagination
           size="small"
-          total={dataLength}
+          total={pagination.dataLength}
           showSizeChanger
-          pageSize={numberOfPages}
+          pageSize={pagination.numberOfPages}
           pageSizeOptions={['5', '10', '20', '50']}
-          onChange={(e) => setPageNumber(e - 1)}
-          onShowSizeChange={(e, size) => setNumberOfPages(size)}
+          onChange={(e) => setPaginationData({ pageNumber: e - 1 })}
+          onShowSizeChange={(e, size) => setPaginationData({ numberOfPages: size })}
         />
       </div>
     </div>

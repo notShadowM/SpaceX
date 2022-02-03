@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Modal } from 'antd';
 import { request } from 'graphql-request';
 import { useSelector } from 'react-redux';
-import { endpoint, payloadsPart1, payloadsPart2 } from '../../graphql/spaceX';
-import Loading from '../Loading';
+import { endpoint, payloadsPart1, payloadsPart2 } from '../../../graphql/spaceX';
+import Loading from '../../Loading';
 
 const gqlData = (payload, weight) => [
   { label: 'Payload id:', content: payload?.id },

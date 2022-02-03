@@ -11,8 +11,8 @@ import { request } from 'graphql-request';
 import {
   endpoint, Names, MissionIds, tableData, modalData, tableDataLength,
 } from '../../graphql/spaceX';
-import Selection from './Selection';
-import ModalRow from './ModalRow';
+import Selection from './Selection/Selection';
+import ModalRow from './ModalRow/ModalRow';
 import Loading from '../Loading';
 
 const columns = [
@@ -153,10 +153,14 @@ export default function RecentLaunches() {
     launch_success: '',
     land_success: '',
   });
-  const [pageNumber, setPageNumber] = useState(0);
-  const [numberOfPages, setNumberOfPages] = useState(5);
-  const [dataLength, setDataLength] = useState(0);
   const [loadingTable, setLoadingTable] = useState(false);
+  const [pagination, setPagination] = useState({
+    pageNumber: 0,
+    numberOfPages: 5,
+    dataLength: 0,
+  });
+
+  const setPaginationData = (object) => setPagination((prevState) => ({ ...prevState, ...object }));
 
   const setFormData = (object) => setFormDatas((prevState) => ({ ...prevState, ...object }));
 
@@ -164,7 +168,7 @@ export default function RecentLaunches() {
     const variables = {
       find: formData,
     };
-    request(endpoint, tableDataLength, variables).then((res) => setDataLength(res.launchesPastResult.result.totalCount));
+    request(endpoint, tableDataLength, variables).then((res) => setPaginationData({ dataLength: res.launchesPastResult.result.totalCount }));
   };
   const getNames = () => {
     request(endpoint, Names).then((d) => setNames(
@@ -179,8 +183,8 @@ export default function RecentLaunches() {
   const allData = () => {
     const variables = {
       find: formData,
-      offset: pageNumber * numberOfPages,
-      limit: numberOfPages,
+      offset: pagination.pageNumber * pagination.numberOfPages,
+      limit: pagination.numberOfPages,
     };
     setLoadingTable(true);
     request(endpoint, tableData, variables).then((response) => {
@@ -217,7 +221,7 @@ export default function RecentLaunches() {
     allData();
     return () => {
     };
-  }, [formData, pageNumber, numberOfPages]);
+  }, [formData, pagination.pageNumber, pagination.numberOfPages]);
 
   const showModal = (record) => {
     setIsModalVisible(true);
@@ -269,7 +273,7 @@ export default function RecentLaunches() {
   ), [formData, missionsIds, names]);
 
   const actionRef = useRef();
-  return !dataLength ? <Loading />
+  return !pagination.dataLength ? <Loading />
     : (
       <>
         {SelectionMemo}
@@ -298,14 +302,14 @@ export default function RecentLaunches() {
           }}
           loading={loadingTable}
           pagination={{
-            total: dataLength,
-            pageSize: numberOfPages,
+            total: pagination.dataLength,
+            pageSize: pagination.numberOfPages,
             showLessItems: true,
             showTotal: false,
             locale: { items_per_page: 'items' },
             pageSizeOptions: ['5', '10', '20', '50'],
-            onChange: (e) => setPageNumber(e - 1),
-            onShowSizeChange: (e, size) => setNumberOfPages(size),
+            onChange: (e) => setPaginationData({ pageNumber: e - 1 }),
+            onShowSizeChange: (e, size) => setPaginationData({ numberOfPages: size }),
           }}
           dateFormatter="string"
           headerTitle="SpaceX"

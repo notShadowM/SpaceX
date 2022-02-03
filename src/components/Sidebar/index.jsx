@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './style.css';
-import { SettingFilled, RocketFilled, PaperClipOutlined } from '@ant-design/icons';
-import { Modal, Switch } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
 import {
-  useLocation,
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link,
-} from 'react-router-dom';
+  Menu, Modal, Switch, Button,
+} from 'antd';
+import {
+  SettingFilled, RocketFilled, PaperClipOutlined, HomeFilled,
+} from '@ant-design/icons';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 import { changeLang, changeWeight, changeDistance } from '../../features/settings/settingsSlice';
 
@@ -18,11 +17,12 @@ export default function Sidebar() {
   const lang = useSelector((state) => state.settings.lang);
   const weight = useSelector((state) => state.settings.weight);
   const distance = useSelector((state) => state.settings.distance);
-  const location = useLocation();
+  const navigate = useNavigate();
+  const modalRef = useRef();
 
   const dispatch = useDispatch();
 
-  const showModal = () => {
+  const showModal = (e) => {
     setIsModalVisible(true);
   };
 
@@ -46,21 +46,21 @@ export default function Sidebar() {
 
   return (
     <div className="sidebarContainer">
-      <SettingFilled className="icon" onClick={showModal} />
-
-      <Link to="/RecentLaunches" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-        <div className={`item ${location.pathname === '/RecentLaunches' && 'selected'}`}>
-          <RocketFilled className="icon" />
-          Recent Launches
-        </div>
-      </Link>
-
-      <Link to="/Missions" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-        <div className={`item ${location.pathname === '/Missions' && 'selected'}`}>
-          <PaperClipOutlined className="icon" />
-          Missions
-        </div>
-      </Link>
+      <div className="settingsButton" onClick={() => showModal()}>
+        <SettingFilled className="icon" style={{ color: '#fff' }} />
+      </div>
+      <Menu
+        defaultSelectedKeys={['1']}
+        defaultOpenKeys={['sub1']}
+        mode="inline"
+        theme="dark"
+        style={{ width: '100%', height: '100vh', paddingTop: '60px' }}
+        inlineCollapsed
+      >
+        <Menu.Item key="1" onClick={(e) => navigate('/')} icon={<HomeFilled className="icon" />} title="Home" />
+        <Menu.Item key="2" onClick={(e) => navigate('/RecentLaunches')} icon={<RocketFilled className="icon" />} title="Recent Launches" />
+        <Menu.Item key="3" onClick={(e) => navigate('/Missions')} icon={<PaperClipOutlined className="icon" />} title="Missions" />
+      </Menu>
 
       <Modal title="Settings" footer={null} visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} width={200}>
         <div className="switches">

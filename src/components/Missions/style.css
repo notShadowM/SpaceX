@@ -48,8 +48,8 @@
   position: fixed;
   bottom: 0;
   left: 0;
-  background-color: rgba(0, 255, 0, 0.5);
+  background-color: rgba(0, 150, 255, 0.5);
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   text-align: right;
 }

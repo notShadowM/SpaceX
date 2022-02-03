@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Card } from 'antd';
 import { FileWordOutlined, TwitterOutlined, LinkOutlined } from '@ant-design/icons';
-import CardModal from './CardModal';
+import CardModal from '../CardModal/CardModal';
 
 const cardData = (mission) => [
   { label: 'Name:', content: mission.name },

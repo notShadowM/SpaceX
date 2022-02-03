@@ -3,8 +3,8 @@
   height: 100vh;
   position: fixed;
   left: 0;
-  padding: 2% 5px;
-  background-color: #ccc;
+  /* padding: 2% 5px; */
+  /* background-color: #ccc; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,7 +12,7 @@
 }
 
 .icon{
-  font-size: 35px;
+  font-size: 28px;
 }
 
 .item{
@@ -39,4 +39,10 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+}
+
+.settingsButton{
+  cursor: pointer;
+  position: absolute;
+  top: 18px;
 }
