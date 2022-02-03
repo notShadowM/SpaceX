@@ -9,7 +9,7 @@ import { useSelector } from 'react-redux';
 import './style.css';
 import { request } from 'graphql-request';
 import {
-  endpoint, Names, MissionIds, tableData, modalData,
+  endpoint, Names, MissionIds, tableData, modalData, tableDataLength,
 } from '../../graphql/spaceX';
 import Selection from './Selection';
 import ModalRow from './ModalRow';
@@ -153,9 +153,19 @@ export default function RecentLaunches() {
     launch_success: '',
     land_success: '',
   });
+  const [pageNumber, setPageNumber] = useState(0);
+  const [numberOfPages, setNumberOfPages] = useState(5);
+  const [dataLength, setDataLength] = useState(0);
+  const [loadingTable, setLoadingTable] = useState(false);
 
   const setFormData = (object) => setFormDatas((prevState) => ({ ...prevState, ...object }));
 
+  const getDataLength = () => {
+    const variables = {
+      find: formData,
+    };
+    request(endpoint, tableDataLength, variables).then((res) => setDataLength(res.launchesPastResult.result.totalCount));
+  };
   const getNames = () => {
     request(endpoint, Names).then((d) => setNames(
       [...new Set(d.launchesPastResult.data.map((e) => e.rocket.rocket_name))],
@@ -169,22 +179,33 @@ export default function RecentLaunches() {
   const allData = () => {
     const variables = {
       find: formData,
+      offset: pageNumber * numberOfPages,
+      limit: (pageNumber * numberOfPages) + numberOfPages,
     };
-    request(endpoint, tableData, variables).then((response) => setData(
-      response.launchesPastResult.data.map((e, index) => ({
-        key: index,
-        mission_icon: e.links.mission_patch_small,
-        launch_site: e.launch_site.site_name,
-        rocket_name: e.rocket.rocket_name,
-        rocket_country: e.rocket.rocket.country,
-        launch_date: e.launch_date_utc.substring(0, 10),
-        mission_name: e.mission_name,
-        is_upcoming: e.upcoming,
-        media: [e.links.reddit_campaign, e.links.reddit_launch, e.links.reddit_media, e.links.reddit_recovery, e.links.video_link, e.links.wikipedia],
-      })),
-    ));
+    setLoadingTable(true);
+    request(endpoint, tableData, variables).then((response) => {
+      setData(
+        response.launchesPastResult.data.map((e, index) => ({
+          key: index,
+          mission_icon: e.links.mission_patch_small,
+          launch_site: e.launch_site.site_name,
+          rocket_name: e.rocket.rocket_name,
+          rocket_country: e.rocket.rocket.country,
+          launch_date: e.launch_date_utc.substring(0, 10),
+          mission_name: e.mission_name,
+          is_upcoming: e.upcoming,
+          media: [e.links.reddit_campaign, e.links.reddit_launch, e.links.reddit_media, e.links.reddit_recovery, e.links.video_link, e.links.wikipedia],
+        })),
+      );
+      setLoadingTable(false);
+    });
   };
 
+  useEffect(() => {
+    getDataLength();
+    return () => {
+    };
+  }, [formData]);
   useEffect(() => {
     getNames();
     getMissionIds();
@@ -196,7 +217,7 @@ export default function RecentLaunches() {
     allData();
     return () => {
     };
-  }, [formData]);
+  }, [formData, pageNumber, numberOfPages]);
 
   const showModal = (record) => {
     setIsModalVisible(true);
@@ -248,7 +269,7 @@ export default function RecentLaunches() {
   ), [formData, missionsIds, names]);
 
   const actionRef = useRef();
-  return !data ? <Loading />
+  return !dataLength ? <Loading />
     : (
       <>
         {SelectionMemo}
@@ -275,12 +296,16 @@ export default function RecentLaunches() {
               return values;
             },
           }}
+          loading={loadingTable}
           pagination={{
-            pageSize: 5,
+            total: dataLength,
+            pageSize: numberOfPages,
             showLessItems: true,
             showTotal: false,
             locale: { items_per_page: 'items' },
             pageSizeOptions: ['5', '10', '20', '50'],
+            onChange: (e) => setPageNumber(e - 1),
+            onShowSizeChange: (e, size) => setNumberOfPages(size),
           }}
           dateFormatter="string"
           headerTitle="SpaceX"

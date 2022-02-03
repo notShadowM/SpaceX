@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './style.css';
 import { request } from 'graphql-request';
 import { Pagination } from 'antd';
-import { endpoint, getMissions, MissionIds } from '../../graphql/spaceX';
+import { endpoint, getMissions, missionsLength } from '../../graphql/spaceX';
 import MissionCard from './MissionCard';
 import Loading from '../Loading';
 
@@ -10,9 +10,14 @@ export default function Missions() {
   const [data, setData] = useState();
   const [pageNumber, setPageNumber] = useState(0);
   const [numberOfPages, setNumberOfPages] = useState(5);
+  const [dataLength, setDataLength] = useState(0);
 
   const getData = () => {
-    request(endpoint, getMissions).then((response) => setData(
+    const variables = {
+      offset: pageNumber * numberOfPages,
+      limit: (pageNumber * numberOfPages) + numberOfPages,
+    };
+    request(endpoint, getMissions, variables).then((response) => setData(
       response.missionsResult.data.map((e, index) => ({
         key: index,
         name: e.name,
@@ -26,13 +31,22 @@ export default function Missions() {
     ));
   };
 
+  const getDataLength = () => {
+    request(endpoint, missionsLength).then((res) => setDataLength(res.missionsResult.result.totalCount));
+  };
+
+  useEffect(() => {
+    getDataLength();
+    return () => {};
+  }, []);
+
   useEffect(() => {
     getData();
     return () => {
     };
-  }, []);
+  }, [pageNumber, numberOfPages]);
 
-  const dataMemo = useMemo(() => data?.slice(pageNumber * numberOfPages, (pageNumber * numberOfPages) + numberOfPages).map((mission, index) => (
+  const dataMemo = useMemo(() => data?.map((mission, index) => (
     <MissionCard mission={mission} key={index} />
   )), [data, pageNumber, numberOfPages]);
 
@@ -42,7 +56,7 @@ export default function Missions() {
       <div className="paginationBar">
         <Pagination
           size="small"
-          total={data.length}
+          total={dataLength}
           showSizeChanger
           pageSize={numberOfPages}
           pageSizeOptions={['5', '10', '20', '50']}

@@ -4,8 +4,8 @@ import { gql } from 'graphql-request';
 export const endpoint = 'http://api.spacex.land/graphql/';
 
 export const tableData = gql`
-query ($find: LaunchFind) {
-  launchesPastResult(find: $find) {
+query ($find: LaunchFind, $offset: Int, $limit: Int) {
+  launchesPastResult(find: $find, offset: $offset, limit: $limit) {
     data {
       links {
         mission_patch_small
@@ -28,6 +28,16 @@ query ($find: LaunchFind) {
       launch_date_utc
       mission_name
       upcoming
+    }
+  }
+}
+`;
+
+export const tableDataLength = gql`
+query ($find: LaunchFind) {
+  launchesPastResult(find: $find) {
+    result {
+      totalCount
     }
   }
 }
@@ -99,8 +109,8 @@ export const MissionIds = gql`
 `;
 
 export const getMissions = gql`
-query Query {
-  missionsResult {
+query Query($offset: Int, $limit: Int) {
+  missionsResult(offset: $offset, limit: $limit) {
     data {
       name
       description
@@ -111,6 +121,17 @@ query Query {
       wikipedia
       twitter
       website
+    }
+  }
+}
+`;
+
+export const missionsLength = gql`
+{
+  missionsResult{
+    
+    result {
+      totalCount
     }
   }
 }
