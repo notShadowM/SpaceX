@@ -15,7 +15,7 @@ export default function Missions() {
   const getData = () => {
     const variables = {
       offset: pageNumber * numberOfPages,
-      limit: (pageNumber * numberOfPages) + numberOfPages,
+      limit: numberOfPages,
     };
     request(endpoint, getMissions, variables).then((response) => setData(
       response.missionsResult.data.map((e, index) => ({

@@ -180,7 +180,7 @@ export default function RecentLaunches() {
     const variables = {
       find: formData,
       offset: pageNumber * numberOfPages,
-      limit: (pageNumber * numberOfPages) + numberOfPages,
+      limit: numberOfPages,
     };
     setLoadingTable(true);
     request(endpoint, tableData, variables).then((response) => {
